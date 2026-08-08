@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Tracker Pro — Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070B15;
+    --panel:#121A2C;
+    --panel-hi:#182238;
+    --line:#28344E;
+    --line-soft:#1C263C;
+    --brass:#E0BC4E;
+    --brass-deep:#8a6f1e;
+    --sage:#63C08E;
+    --rust:#D06B4C;
+    --bone:#F4EFE2;
+    --bone-dim:#A3AEC2;
+    --bone-faint:#5F6A82;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1300px 650px at 12% -12%, rgba(224,188,78,0.08), transparent 55%),
+      radial-gradient(1000px 550px at 105% 5%, rgba(99,192,142,0.06), transparent 55%),
+      var(--ink);
+    color:var(--bone);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    perspective:1400px;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:70px 28px 100px;}
+
+  .masthead{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding-bottom:30px;margin-bottom:8px;flex-wrap:wrap;gap:18px;
+    position:relative;
+  }
+  .masthead::after{
+    content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg, var(--line) 0%, transparent 90%);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--brass);text-transform:uppercase;margin:0 0 12px;
+    display:flex;align-items:center;gap:9px;
+  }
+  .eyebrow::before{content:'';width:16px;height:1px;background:var(--brass);display:inline-block;}
+  h1{
+    font-family:'Newsreader',serif;font-weight:700;font-size:46px;
+    margin:0;color:var(--bone);letter-spacing:-0.02em;
+    text-shadow: 0 4px 30px rgba(224,188,78,0.12), 0 1px 0 rgba(0,0,0,0.4);
+  }
+  .tagline{
+    font-family:'Newsreader',serif;font-style:italic;font-weight:400;
+    font-size:15.5px;color:var(--bone-dim);
+    margin-top:12px;max-width:420px;line-height:1.6;
+  }
+  .masthead-right{
+    text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--bone-dim);
+  }
+  .live-badge{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 14px;
+    background:linear-gradient(180deg, rgba(99,192,142,0.12), rgba(99,192,142,0.04));
+    border:1px solid rgba(99,192,142,0.3);
+    border-radius:20px;color:var(--sage);font-size:11px;letter-spacing:.04em;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 10px -4px rgba(0,0,0,0.4);
+  }
+  .live-badge .dot{
+    width:6px;height:6px;border-radius:50%;background:var(--sage);
+    box-shadow: 0 0 10px var(--sage);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  #last-updated{margin-top:11px;color:var(--bone-faint);}
+
+  .summary{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+    margin:38px 0 50px;
+  }
+  .summary-cell{
+    padding:24px 22px;
+    background:linear-gradient(160deg, #1A2540 0%, #101828 100%);
+    border:1px solid var(--line);border-radius:12px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.06) inset,
+      0 20px 40px -16px rgba(0,0,0,0.6);
+    position:relative;overflow:hidden;
+    transform-style:preserve-3d;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease;
+  }
+  .summary-cell::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg, transparent, rgba(224,188,78,0.45), transparent);
+  }
+  .summary-cell::after{
+    content:'';position:absolute;inset:0;border-radius:12px;pointer-events:none;
+    background:radial-gradient(240px 120px at 30% 0%, rgba(255,255,255,0.05), transparent 70%);
+  }
+  .summary-cell:hover{
+    transform: translateY(-4px) rotateX(4deg) rotateY(-2deg);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.08) inset,
+      0 32px 56px -14px rgba(0,0,0,0.7);
+  }
+  .summary-label{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--bone-faint);margin-bottom:11px;
+  }
+  .summary-value{font-family:'Newsreader',serif;font-weight:700;font-size:32px;color:var(--bone);}
+  .summary-value.brass{color:var(--brass);}
+
+  .section-label{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--bone-faint);margin:0 0 18px 4px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  .ledger-panel{
+    background:linear-gradient(180deg, #141D32 0%, #0F1728 100%);
+    border:1px solid var(--line);border-radius:14px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.05) inset,
+      0 30px 60px -18px rgba(0,0,0,0.65);
+    overflow:hidden;
+  }
+  .ledger-head{
+    display:grid;grid-template-columns:2.4fr 1fr 1.5fr;
+    padding:18px 26px;border-bottom:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;
+    color:var(--bone-faint);text-transform:uppercase;
+    background:rgba(255,255,255,0.02);
+  }
+  .row{
+    display:grid;grid-template-columns:2.4fr 1fr 1.5fr;
+    align-items:center;
+    padding:24px 26px;border-bottom:1px solid var(--line-soft);
+    transition:background .18s ease;
+    position:relative;
+  }
+  .row:last-child{border-bottom:none;}
+  .row:hover{background:rgba(255,255,255,0.025);}
+  .prod-name{font-family:'Newsreader',serif;font-weight:600;font-size:18px;color:var(--bone);}
+  .prod-url{
+    display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;
+    color:var(--bone-faint);margin-top:6px;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;max-width:300px;
+  }
+  .price-tag{
+    display:inline-flex;align-items:baseline;gap:3px;
+    font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;
+    color:var(--brass);
+    text-shadow: 0 2px 16px rgba(224,188,78,0.3);
+  }
+  .price-tag .currency{font-size:12px;opacity:.65;}
+  .checked{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--bone-dim);}
+
+  #status{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--bone-dim);
+    padding:44px 24px;text-align:center;line-height:1.7;
+  }
+  .status-icon{font-size:24px;display:block;margin-bottom:12px;opacity:.55;}
+  .error{color:var(--rust);}
+
+  .footnote{
+    margin-top:44px;padding-top:24px;border-top:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--bone-faint);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+  .footnote span{color:var(--bone-dim);}
+
+  @media (max-width:640px){
+    body{perspective:none;}
+    .wrap{padding:40px 16px 68px;}
+    h1{font-size:32px;}
+    .summary{grid-template-columns:1fr;}
+    .summary-cell:hover{transform:none;}
+    .ledger-head{display:none;}
+    .row{grid-template-columns:1fr;gap:9px;padding:22px 20px;}
+    .prod-url{max-width:100%;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .live-badge .dot{animation:none;}
+    .summary-cell{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <p class="eyebrow">Price Tracker Pro</p>
+      <h1>The Ledger</h1>
+      <p class="tagline">A quiet record of what things cost, and when that changes — kept so you never have to check twice.</p>
+    </div>
+    <div class="masthead-right">
+      <div class="live-badge"><span class="dot"></span>Live from database</div>
+      <div id="last-updated">Connecting…</div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-cell">
+      <div class="summary-label">Items Watched</div>
+      <div class="summary-value" id="stat-count">—</div>
+    </div>
+    <div class="summary-cell">
+      <div class="summary-label">Average Price</div>
+      <div class="summary-value brass" id="stat-avg">—</div>
+    </div>
+    <div class="summary-cell">
+      <div class="summary-label">Connection</div>
+      <div class="summary-value" id="stat-status" style="font-size:18px;">Checking…</div>
+    </div>
+  </div>
+
+  <p class="section-label">Currently Tracked</p>
+
+  <div class="ledger-panel">
+    <div class="ledger-head">
+      <div>Product</div>
+      <div>Price</div>
+      <div>Last Checked</div>
+    </div>
+    <div id="rows"></div>
+    <div id="status"></div>
+  </div>
+
+  <div class="footnote">
+    <div>Source · <span>price_history.db</span></div>
+    <div>Served by <span>FastAPI</span></div>
+  </div>
+
+</div>
+
+<script>
+  fetch('/api/prices')
+    .then(res => {
+      if (!res.ok) throw new Error('Server error');
+      return res.json();
+    })
+    .then(data => {
+      const rowsDiv = document.getElementById('rows');
+      const statusDiv = document.getElementById('status');
+
+      if (!data.length) {
+        statusDiv.innerHTML = '<span class="status-icon">○</span>Nothing tracked yet.<br>Run <b>main.py</b> once to begin collecting prices.';
+        document.getElementById('stat-status').innerText = 'Waiting';
+        document.getElementById('last-updated').innerText = 'No data yet';
+        return;
+      }
+
+      document.getElementById('stat-count').innerText = data.length;
+      const avg = (data.reduce((sum, p) => sum + p.price, 0) / data.length).toFixed(2);
+      document.getElementById('stat-avg').innerText = `£${avg}`;
+      document.getElementById('stat-status').innerText = 'Connected';
+      document.getElementById('last-updated').innerText = 'Refreshed just now';
+
+      data.forEach(item => {
+        rowsDiv.innerHTML += `
+          <div class="row">
+            <div>
+              <div class="prod-name">${item.name}</div>
+              <span class="prod-url">${item.url}</span>
+            </div>
+            <div class="price-tag"><span class="currency">£</span>${item.price}</div>
+            <div class="checked">${item.checked_at}</div>
+          </div>
+        `;
+      });
+    })
+    .catch(err => {
+      document.getElementById('status').innerHTML = '<span class="status-icon error">!</span><span class="error">Could not reach the server.<br>Make sure app.py is running and price_history.db exists.</span>';
+      document.getElementById('stat-status').innerText = 'Offline';
+      document.getElementById('last-updated').innerText = 'Connection failed';
+    });
+</script>
+</body>
+</html>
